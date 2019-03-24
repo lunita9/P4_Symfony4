@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello!{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+    .container {
+        width:100%;
+    }
+    .progressbar{
+        counter-reset:step;
+    }
+    .progressbar li{
+        list-style-type: none;
+        float: left;
+        width: 23%;
+        position: relative;
+        text-align:center;
+    }
+    .progressbar li:before{
+        content:counter(step);
+        counter-increment: step;
+        width:30px;
+        height:30px;
+        line-height: 30px;
+        border: 1px solid #ddd;
+        display: block;
+        text-align:center;
+        margin: 0 auto 10px auto;
+        border-radius:50%;
+        background-color: white;
+    }
+    .progressbar li:after{
+        content:'';
+        position: absolute;
+        width:100%;
+        height:1px;
+        background-color:#ddd;
+        top:15px;
+        left:-50%;
+        z-index:-1;
+    }
+    .progressbar li:first-child:after{
+        content:none;
+    }
+    .progressbar li.active{
+        color:green;
+    }
+    .progressbar li.active:before{
+        border-color:green;
+    }
+    .progressbar li.active + li:after{
+        background-color:green;
+    }
+</style>
+{% endblock %}
+
+
+
+{% block body %}
+
+<script type="text/javascript">
+    function calculTotal(){
+        var tb1=document.getElementById('text1');
+        var nombreTarifNormal=+(tb1.value);
+
+        var tb2=document.getElementById('text2');
+        var nombreTarifSenior=+(tb2.value);
+
+        var tb3=document.getElementById('text3');
+        var nombreTarifReduit=+(tb3.value);
+
+        var tb4=document.getElementById('text4');
+        var nombreTarifEnfant=+(tb4.value);
+        
+        var prixBillet1=16;
+        var prixBillet2=12;
+        var prixBillet3=10;
+        var prixBillet4=8;
+
+        var tbResultat=document.getElementById('total');
+        //tbresultat.value=10;
+        tbResultat.value=nombreTarifNormal*prixBillet1 + nombreTarifSenior*prixBillet2 + nombreTarifReduit*prixBillet3 + nombreTarifEnfant*prixBillet4;
+    }
+
+    
+
+</script>    
+
+    <div class="container">
+        <ul class="progressbar">
+            <li class="active">Ajouter au panier</li>
+            <li class="active">Détail billets</li>
+            <li>Paiement</li>
+            <li>Confirmation</li>
+        </ul>
+    </div>
+
+    <br/>
+    
+<br/>
+<br/>
+<br/>
+<label for=""><strong>Récapitulatif</strong></label></br>
+    <textarea>Nombre de billets :{{nbBillet}}</textarea></br>
+    <textarea>Date de visite :{{dateBillet}}</textarea></br>
+    <input id="text1" onchange="calculTotal()" type="text"/>
+    <input id="text2" onchange="calculTotal()" type="text"/>
+    <input id="text3" onchange="calculTotal()" type="text"/>
+    <input id="text4" onchange="calculTotal()" type="text"/></br>
+    <input id="total" type="text"/></br>
+    <br/>
+<br/>
+
+    {{form_start(forminfo_client)}}
+      
+    {% for infoClient in forminfo_client.listeInfoClient %}
+     
+        <label for""><strong>Formulaire du billet n°</strong></label></br>
+        <label for="">Nom :</label>
+        {{form_widget(infoClient.nom)}}
+        <label for="">Prénom :</label>
+        {{form_widget(infoClient.prenom)}}
+        <label for="">Le pays de résidence :</label>
+        {{form_widget(infoClient.pays)}}
+        <label for="">Date de naissance :</label>
+        {{form_widget(infoClient.date_naissance)}}
+        <label for="">Tarif Réduit :</label>
+        {{form_widget(infoClient.acces_reduit)}}
+        <button type="submit">Valider ce formulaire client</button></br></br>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-success">Valider la commande</button>
+   {{form_end(forminfo_client)}}
+{% endblock %}
