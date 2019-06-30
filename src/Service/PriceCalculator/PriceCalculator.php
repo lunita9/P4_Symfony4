@@ -17,7 +17,7 @@ class PriceCalculator
 
 
 //    public function getTarif($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour){
-        public function getTarif($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour){
+        public function getTarifClient($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour){
        
 
         
