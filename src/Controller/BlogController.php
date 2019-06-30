@@ -21,6 +21,10 @@ use App\Form\InfoClientType;
 use App\Form\GroupeClientsType;
 use Symfony\Component\Validator\Constraints\DateTime;
 use App\Service\PriceCalculator\PriceCalculator;
+//use Symfony\Component\Mailer\MailerInterface;
+//use Symfony\Component\Mime\Email;
+use App\Service\MailValidator\MailValidator;
+
 
 class BlogController extends AbstractController
 {
@@ -114,10 +118,12 @@ class BlogController extends AbstractController
             if( $interval > 0) {// $interval >0 : à partir de demain ou aujourd'hui avant 14h
                 $session->set('nombre_total_ticket', $reservation->getNombreTotalTicket());
                 $session->set('date_billet', $reservation->getDateBillet());
+                $session->set('title', $reservation->getTitle());
                 $session->set('msg_trop_tard','Veuillez effectuer votre choix');
             } else {// $interval=0 : aujourd'hui après 14h
                 $session->set('nombre_total_ticket', $reservation->getNombreTotalTicket());
-                $session->set('date_billet', $reservation->getDateBillet()); 
+                $session->set('date_billet', $reservation->getDateBillet());
+                $session->set('title', $reservation->getTitle()); 
                 //TODO : si on a choisi journée complète, message et ne pas changer de page
                 if($reservation->getTypeJour() == 'Journée') {
                     $session->set('msg_trop_tard','Il est trop tard pour le billet Journée');
@@ -285,7 +291,8 @@ class BlogController extends AbstractController
         $typeJour=$session->get('type_jour');
         $nombreBillet=$session->get('nombre_total_ticket');
         $dateBillet=$session->get('date_billet');
-        //$price=$session->get('price');
+        $title=$session->get('title');
+        //$priceTotal=$session->get('priceTotal');
 
         $groupeClients = new GroupeClients();
         for($i=1;$i<=$nombreBillet;$i++){
@@ -300,7 +307,7 @@ class BlogController extends AbstractController
         $form->handleRequest($request);
         
         if($form->isSubmitted()&& $form->isValid()){
-            $prixTotal=0;
+            $priceTotal=0;
             $priceCalculator = new PriceCalculator();
             for($i=0;$i<$nombreBillet;$i++){
                 $infoClient= $groupeClients->getListeInfoClient()[$i];
@@ -309,30 +316,182 @@ class BlogController extends AbstractController
                 $moisNaissance=$dateNaissance->format('m');
                 $jourNaissance=$dateNaissance->format('d');
                 $reduit=$infoClient->getAccesReduit();
-                $prixClient=$priceCalculator->getTarif($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour);
-                $prixTotal+=$prixClient;
-            
+                $prixClient=$priceCalculator->getTarifClient($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour);
+                echo $prixClient;
+                $priceTotal+=$prixClient;
+                
             }
-            echo $prixTotal;
+            echo $priceTotal;
             //$entityManager=$this->getDoctrine()->getManager();
-            //$entityManager->persist($ListInfoClient);
+            //$entityManager->persist($listInfoClient);
             //$entityManager->flush();
 
-            //return $this->redirectToRoute('blog');
+            $session->set('groupe_client', $groupeClients);
+            $session->set('price_total', $priceTotal);
+            $session->set('title', $title);
+            return $this->redirectToRoute('confirmation');
         }
-
+        /*return $this->render('blog/accueil.html.twig', [
+            'controller_name' => 'BlogController',
+            'forminfo_client'=>$form->createView()
+        ]);*/
         return $this->render('blog/accueil.html.twig', [
             'nbBillet'=>$nombreBillet,
             'dateBillet'=>$dateBillet->format('d-m-Y'),
-            //'price'=>$price,
+            'type_jour'=>$typeJour,
+            'title'=>$title,
+            'controller_name' => 'BlogController',
+            'forminfo_client'=>$form->createView(),
+            'groupe_client'=>$groupeClients
+        ]);   
+        
+    }
+
+    /**
+     * @Route("/confirmation", name="confirmation")
+     */
+    public function Confirmer(Request $request)
+    {
+        $session=$request->getSession();
+        $typeJour=$session->get('type_jour');
+        $nombreBillet=$session->get('nombre_total_ticket');
+        $dateBillet=$session->get('date_billet');
+        $title=$session->get('title');
+        $priceTotal=$session->get('price_total');
+        
+        $groupeClients=$session->get('groupe_client');
+        /*$groupeClients = new GroupeClients();
+        for($i=1;$i<=$nombreBillet;$i++){
+            $infoClient=new InfoClient();
+            //$infoClient->setId("Titre du formulaire n$i");
+            $groupeClients->getListeInfoClient()-> add($infoClient);
+        }*/
+
+        $form=$this->createForm(GroupeClientsType::class, $groupeClients);
+        //return $this->redirectToRoute('paiement');
+        //echo $groupeClients->getListeInfoClient();
+        return $this->render('blog/confirmation.html.twig', [
+            'nbBillet'=>$nombreBillet,
+            'dateBillet'=>$dateBillet->format('d-m-Y'),
+            'price_total'=>$priceTotal,
+            'type_jour'=>$typeJour,
+            'title'=>$title,
+            'groupe_client'=>$groupeClients,
             'controller_name' => 'BlogController',
             'forminfo_client'=>$form->createView()
-        ]);    
+            ]);
+        //return $this->render('blog/confirmation.html.twig');
+    }
 
+    
+
+    /**
+     * @Route("/paiement", name="paiement")
+     */
+    public function Payer(Request $request)
+    {
+        $session=$request->getSession();
+        $title=$session->get('title');
+        $dateBillet=$session->get('date_billet');
+        $priceTotal=$session->get('price_total');
+        $typeJour=$session->get('type_jour');
+        $groupeClients=$session->get('groupe_client');
+        $code=$session->get('code');
+        //$image=$session->get('image');
+        //$stripeClient = $this->get('flosch.stripe.client');
+        \Stripe\Stripe::setApiKey("sk_test_v58YrQMVbowbCjD1DUPz7D0900tM8CdbBG");
+
+        \Stripe\Charge::create(array(
+            "amount"=>2000,
+            "currency"=>"eur",
+            "source"=>$_POST['stripeToken'],
+            //"source"=>$request->request->get('tok_visa'),
+            "description"=>"Paiement de test"
+        ));
+        $transport = (new \Swift_SmtpTransport('smtp.orange.fr', 465))
+        ->setUsername('openclassrooms_IF@orange.fr')
+        ->setPassword('testOPp4')
+        ->setEncryption('ssl');
+        $mailer = new \Swift_Mailer($transport);
+
+        $message= (new \Swift_Message('Soyez les bienvenus au Louvre!!'))
+        ->setFrom('noreply@museedulouvre.fr')
+        ->setTo($title);
+        $image = $message->embed(\Swift_Image::fromPath('img/louvre_logo_01.jpg'));
+        $code=strtoupper(substr(md5(uniqid()),0,10));
+        $message->setBody($this->render('blog/email.html.twig',[
+            'image'=>$image,
+            'code'=>$code,
+            'dateBillet' => $dateBillet->format('d-m-Y'),
+            'groupe_client' => $groupeClients,
+            'price_total' => $priceTotal,
+            'type_jour'=>$typeJour,
+            'title' => $title
+         ]), 'text/html');
+        
+
+        $result = $mailer->send($message);
+
+        return $this->render('blog/paiement.html.twig', [
+            'title'=>$title
+        ]);
+    }
+
+    
+
+    /**
+     * @Route("/email")
+     */
+    public function sendEmail(\Swift_Mailer $mailer, Request $request)
+    {
+        $session=$request->getSession();
+        $typeJour=$session->get('type_jour');
+        $nombreBillet=$session->get('nombre_total_ticket');
+        $dateBillet=$session->get('date_billet');
+        $title=$session->get('title');
+        $priceTotal=$session->get('price_total');
+        
+        $groupeClients=$session->get('groupe_client');
+        /*$groupeClients = new GroupeClients();
+        for($i=1;$i<=$nombreBillet;$i++){
+            $infoClient=new InfoClient();
+            //$infoClient->setId("Titre du formulaire n$i");
+            $groupeClients->getListeInfoClient()-> add($infoClient);
+        }*/
+
+        $form=$this->createForm(GroupeClientsType::class, $groupeClients);
+        //return $this->redirectToRoute('paiement');
+        //echo $groupeClients->getListeInfoClient();
+        
+
+        $email = (new MailValidator($request))
+            ->from('openclassrooms_IF@orange.fr')
+            ->to($title)
+            //->cc('cc@example.com')
+            //->bcc('bcc@example.com')
+            //->replyTo('fabien@example.com')
+            //->priority(Email::PRIORITY_HIGH)
+            ->subject('Time for Symfony Mailer!')
+            ->text('Sending emails is fun again!')
+            ->html('<p>See Twig integration for better HTML integration!</p>');
+        echo $email;
+        $mailer->send($email);
+
+        return $this->render('blog/email.html.twig', [
+            'nbBillet'=>$nombreBillet,
+            'dateBillet'=>$dateBillet->format('d-m-Y'),
+            'price_total'=>$priceTotal,
+            'type_jour'=>$typeJour,
+            'title'=>$title,
+            'groupe_client'=>$groupeClients,
+            'controller_name' => 'BlogController',
+            'forminfo_client'=>$form->createView()
+            ]);
     }
 
 
-    public function Detail_Client_old(Request $request)
+
+   /* public function Detail_Client_old(Request $request)
     {
         $session=$request->getSession();
         $nombreBillet=$session->get('nombre_total_ticket');
@@ -345,11 +504,11 @@ class BlogController extends AbstractController
         
         }
 
-        /*$session=$request->getSession();
-        $dateBillet=$session->get('date_billet');
+        //$session=$request->getSession();
+        //$dateBillet=$session->get('date_billet');
 
-        $ListInfoClient=array([$dateBillet]);
-        $ListInfoClient=new InfoClient();*/
+        //$ListInfoClient=array([$dateBillet]);
+        //$ListInfoClient=new InfoClient();
         $form=$this->createForm(InfoClientType::class); //, $ListInfoClient);
 
         $form->handleRequest($request);
@@ -373,7 +532,8 @@ class BlogController extends AbstractController
             'forminfo_client'=>$form->createView()
         ]);    
 
-    }
+    }*/
+
 
         //$infoClient=new InfoClient();
         //$form=$this->createFormBuilder($infoClient)
