@@ -55,8 +55,9 @@ class InfoClientType extends AbstractType
         ))
         ->add('acces_reduit', ChoiceType::class, [
             'choices' => [
-                'Oui' => true,
-                'Non' => false
+                'Oui' => true, 
+                'Non' => false, 
+                
             ],
             'expanded' => true,
             'multiple' => false,

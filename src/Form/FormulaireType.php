@@ -26,23 +26,30 @@ class FormulaireType extends AbstractType
         $currentYear = date('Y');
         $nextYear = date('Y')+1;
         //$daysOff = ['01-01-', '17-04-', '01-05-', '08-05-', '25-05-', '05-06-', '14-07-', '15-08-', '01-11-', '11-11-'];
-        $daysOff = ["2019/01/01".'  '. "2019/04/17".' '. "2019/05/01".' '. "2019/05/08".' '. "2019/05/25".' '. "2019/06/05".' '. "2019/07/14".' '. "2019/08/15".' '. "2019/11/01".' '. "2019/11/11"];
+        $daysOff = ["/01/01", "/05/01", "/05/08", "/07/14", "/08/15", "/11/01", "/11/11", "/12/25"];
+        //$daysOff = [2, 7, [2019,4,1], [2019,11,25], [2020,4,1], [2020,11,25] ]
+        //$daysOff=[[1, 1, 2013],[1, 5, 2013],[8, 5, 2013],[14, 7, 2013],[15, 8, 2013],[1, 11, 2013],[11, 11, 2013],[25, 12, 2013]];
+        $listDate="";
         foreach ($daysOff as $dayOff){
             //$disabledDateCurrentYear = $disabledDateCurrentYear.$dayOff.$currentYear.', ';
             //$disabledDateNextYear = $disabledDateNextYear.$dayOff.$nextYear.', ';
             //$disabledDateCurrentYear = $disabledDateCurrentYear.$currentYear.$dayOff.', '; //format yyy-mm-dd
             //$disabledDateNextYear = $disabledDateNextYear.$nextYear.$dayOff.', ';
-            $disabledDateCurrentYear = $disabledDateCurrentYear.$currentYear.$dayOff.', ';
-            $disabledDateNextYear = $disabledDateNextYear.$nextYear.$dayOff.', ';
+            //$disabledDateCurrentYear = $disabledDateCurrentYear.$currentYear.$dayOff.', ';
+            //$disabledDateNextYear = $disabledDateNextYear.$nextYear.$dayOff.', ';
+            $listDate=$listDate.$currentYear.$dayOff.', ';
+            $listDate=$listDate.$nextYear.$dayOff.', ';
         }
-        //$disabledDate = $disabledDateCurrentYear.$currentYear.'-12-25'.', '.$disabledDateNextYear.$nextYear.'-12-25';
-        //return $disabledDate; //ne marche pas
+        //$disabledDate = $disabledDateCurrentYear.$currentYear.'-05-01'.', '.$disabledDateNextYear.$nextYear.'-05-01';
+        return $listDate; //ne marche pas
         //return array("2019-05-01", "2019-12-25"); //erreur avec ' et avec "
         //return ["2019/05/01", "2019/12/25"]; //erreur avec ' et avec "
-        return "2019/05/01"; //OK 1er mai désactivé
+        //return "2019/05/01, 2019/12/25, 2019/12/23"; //OK 1er mai désactivé
+        //return $daysOff;
+        //return [["2019/12/25"], ["2019/8/5"]];
         //return ["05/01/2019"];
     }
-
+    
 
    
 
@@ -67,7 +74,7 @@ class FormulaireType extends AbstractType
                     //'data-date-format'=>'MMMM Do YYYY, h:mm:ss a',
                     //'data-date-format'=>'dd/mm/yy',
                     'placeholder'=> "now"|date('d/m/Y'),
-                    'data-date-language'=>'fr-FR.UTF8',
+                    'data-date-language'=>'fr-FR',
                     'data-date-days-of-week-disabled' => '0,2',
                     'data-date-start-date' => "0d",
                     'data-date-end-date' => '+364d',
