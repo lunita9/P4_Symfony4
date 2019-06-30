@@ -1,0 +1,229 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello!{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+    #card-element {
+        width: 100%;
+    }
+    .container {
+       background:rgba(128,128,128,0.5);
+       border-radius: 5px;
+    }
+    .recap{
+        background:rgba(127,255,212,0.5);
+       border-radius: 5px;
+       margin:center;
+    }
+    .formBillet{
+        background:rgba(127,255,212,0.5);
+       border-radius: 5px;
+       text-align:center;
+    }
+    .formPayer{
+       background:rgba(127,255,212,0.1);
+       border-radius: 5px;
+    }
+    body {
+        width:100%;
+        height: 500px;
+        border-radius: 5px;
+        background:url('img/louvre.jpg') ;
+        position: absolute;
+        
+        background: rgba(0,0,255,0.9) 
+        border: 3px solid red;
+        
+    }
+    .progressbar{
+        counter-reset:step;
+    }
+    .progressbar li{
+        list-style-type: none;
+        float: left;
+        width: 23%;
+        position: relative;
+        text-align:center;
+    }
+    .progressbar li:before{
+        content:counter(step);
+        counter-increment: step;
+        width:30px;
+        height:30px;
+        line-height: 30px;
+        border: 1px solid #ddd;
+        display: block;
+        text-align:center;
+        margin: 0 auto 10px auto;
+        border-radius:50%;
+        background-color: white;
+    }
+    .progressbar li:after{
+        content:'';
+        position: absolute;
+        width:100%;
+        height:1px;
+        background-color:#ddd;
+        top:15px;
+        left:-50%;
+        z-index:-1;
+    }
+    .progressbar li:first-child:after{
+        content:none;
+    }
+    .progressbar li.active{
+        color:green;
+    }
+    .progressbar li.active:before{
+        border-color:green;
+    }
+    .progressbar li.active + li:after{
+        background-color:green;
+    }
+
+    .StripeElement{
+        box-sizing: border-box;
+        height:40px;
+        padding : 10px 12px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background-color:white;
+        box-shadow: 0 1px 3px 0 #e6ebf1;
+        -webkit-transition: box-shadow 150ms ease;
+        transition: box-shadow 150ms ease;
+    }
+    .StripeElement--focus{
+        box-shadow: 0 1px 3px 0 #cfd7df;
+    }
+    .StripeElement--invalid{
+        border-color: #fa755a;
+    }
+    .StripeElement--webkit-autofill{
+        background-color: #fefde5;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!--<meta http-equiv="Content-Security-Policy" content="script-src https:js.stripe.com 'self' 'unsafe-inline'">-->
+    <div class="container">
+        <ul class="progressbar">
+            <li class="active">Ajouter au panier</li>
+            <li class="active">Détail billets</li>
+            <li>Paiement</li>
+            <li>Confirmation</li>
+        </ul>
+    </div><br/>
+    <br/><br/>
+    <br/>
+    <section class="recap">
+    <label for=""><strong>Récapitulatif</strong></label></br>
+    <textarea>Nombre de billets :{{nbBillet}}</textarea>
+    <textarea>Date de visite :{{dateBillet}}</textarea>
+    <textarea>Email du client {{title}}</textarea>
+    <textarea>Prix total: {{price_total}} €</textarea>
+    </section>
+    </br><br/>
+    
+    <section class="formBillet">
+    {% set index = 1 %}
+    {% for infoClient in groupe_client.getListeInfoClient %}
+     
+        <div><label for""><strong>Formulaire du billet n° </strong></label>{{index}}</div></br>
+        <p><label for="">Nom : {{infoClient.nom}} </label></p>
+        <p><label for="">Prénom : {{infoClient.prenom}} </label></p>
+        <p><label for="">Le pays de résidence : {{infoClient.pays}} </label></p>
+        <p><label for="">Date de naissance : {{infoClient.getDateNaissance.format('d/m/Y')}} </label></p>
+        <p><label for="">Tarif Réduit : {{infoClient.getAccesReduit}} </label></p>
+        <p><label for="">Prix du billet : {{infoClient.getPriceClient(type_jour)}} €</label></p>
+        {% set index = index + 1 %}
+        </br></br>
+    {% endfor %}
+</section>
+    
+{#        <p><label for="">Nom : {{infoClient.nom}} </label></p>
+        <p><label for="">Prénom : {{infoClient.prenom}} </label></p>
+        <p><label for="">Le pays de résidence : {{infoClient.pays}} </label></p>
+        <p><label for="">Date de naissance : {{infoClient.date_naissance}} </label></p>
+        <p><label for="">Tarif Réduit : {{infoClient.acces_reduit}} </label></p>
+#}
+<section class="formPayer">
+<form action="/paiement" method="post" id="payment-form">
+            <div class="form-row">
+                <label for="card-element">
+                Credit or debit card
+                </label>
+            <div id="card-element">
+            <!-- A Stripe Element will be inserted here. -->
+            </div>
+
+            <!-- Used to display form errors. -->
+            <div id="card-errors" role="alert"></div>
+            </div>
+
+            <button>Submit Payment</button>
+        </form>
+        </section>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        var stripe = Stripe('pk_test_5xYBcB9wQyMbJm3tTfHhus1O00QfxT4UpJ');
+        var elements = stripe.elements();
+
+        // Custom styling can be passed to options when creating an Element.
+        var style = {
+        base: {
+            // Add your base input styles here. For example:
+            fontSize: '16px',
+            color: "#32325d",
+        }
+        };
+
+        // Create an instance of the card Element.
+        var card = elements.create('card', {style: style});
+console.log("truc",card);
+        // Add an instance of the card Element into the `card-element` <div>.
+        card.mount('#card-element');
+
+        card.addEventListener('change', function(event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        // Create a token or display an error when the form is submitted.
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            stripe.createToken(card).then(function(result) {
+                if (result.error) {
+                // Inform the customer that there was an error.
+                var errorElement = document.getElementById('card-errors');
+                errorElement.textContent = result.error.message;
+                } else {
+                // Send the token to your server.
+                stripeTokenHandler(result.token);
+                }
+            });
+        });
+
+        function stripeTokenHandler(token) {
+            // Insert the token ID into the form so it gets submitted to the server
+            var form = document.getElementById('payment-form');
+            var hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute('type', 'hidden');
+            hiddenInput.setAttribute('name', 'stripeToken');
+            hiddenInput.setAttribute('value', token.id);
+            form.appendChild(hiddenInput);
+
+            // Submit the form
+            form.submit();
+        }
+    </script>
+{% endblock %}
+

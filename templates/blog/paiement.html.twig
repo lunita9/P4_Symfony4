@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello!{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+    .container {
+        background:rgba(128,128,128);
+       border-radius: 5px;
+    }
+    body {
+        width:100%;
+        height: 500px;
+        border-radius: 5px;
+        background:url('img/museum.jpg') no-repeat;
+        position: absolute;
+        
+        background: rgba(0,0,255,0.9) 
+        border: 3px solid red;
+        
+    }
+    .progressbar{
+        counter-reset:step;
+    }
+    .progressbar li{
+        list-style-type: none;
+        float: left;
+        width: 23%;
+        position: relative;
+        text-align:center;
+    }
+    .progressbar li:before{
+        content:counter(step);
+        counter-increment: step;
+        width:30px;
+        height:30px;
+        line-height: 30px;
+        border: 1px solid #ddd;
+        display: block;
+        text-align:center;
+        margin: 0 auto 10px auto;
+        border-radius:50%;
+        background-color: white;
+    }
+    .progressbar li:after{
+        content:'';
+        position: absolute;
+        width:100%;
+        height:1px;
+        background-color:#ddd;
+        top:15px;
+        left:-50%;
+        z-index:-1;
+    }
+    .progressbar li:first-child:after{
+        content:none;
+    }
+    .progressbar li.active{
+        color:green;
+    }
+    .progressbar li.active:before{
+        border-color:green;
+    }
+    .progressbar li.active + li:after{
+        background-color:green;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <ul class="progressbar">
+            <li class="active">Ajouter au panier</li>
+            <li class="active">Détail billets</li>
+            <li class="active">Paiement</li>
+            <li class="active">Reception</li>
+        </ul>
+    </div><br/>
+    <br/><br/>
+    <br/>
+    
+    <div>
+<label>
+    <h5>Merci pour votre confiance!<br/> Vous pouvez dès à présent chercher votre code et vos billet(s) à l'adresse ci-joint :{{title}}</h5>
+    
+</label>
+        
+{% endblock %}

@@ -1,0 +1,40 @@
+
+{% block title %}{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+    .container {
+        width:100%;
+    }
+    
+</style>
+{% endblock %}
+
+
+
+{% block body %}
+
+<div class="container">
+<img src="{{ image }}" width="200" border="10" alt="logo_du_louvre"/><br/>
+<label><strong>Réservation en ligne - Musée du Louvre</strong></label><br/>
+        <p><label for=""><em>Date de visite :</em> {{dateBillet}}</label></p><br/>
+        <p><label for="">Code de réservation :{{code}}</label></p><br/>
+        {% set index = 1 %}
+        {% for infoClient in groupe_client.getListeInfoClient %}
+     
+        <div><label for""><strong>Billet n° </strong></label>{{index}}</div></br>
+        <p><label for="">Nom : {{infoClient.nom}} </label></p>
+        <p><label for="">Prénom : {{infoClient.prenom}} </label></p>
+        <p><label for="">Le pays de résidence : {{infoClient.pays}} </label></p>
+        <p><label for="">Date de naissance : {{infoClient.getDateNaissance.format('d/m/Y')}} </label></p>
+        <p><label for="">Tarif Réduit : {{infoClient.getAccesReduit}} </label></p>
+        <p><label for="">Prix du billet : {{infoClient.getPriceClient(type_jour)}} €</label></p>
+        {% set index = index + 1 %}
+        </br></br>
+    {% endfor %}
+        <p><label for=""> Prix total : {{price_total}}€</label></p>
+    </div>
+
+    <br/>
+    
+
+{% endblock %}
