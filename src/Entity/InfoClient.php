@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Service\PriceCalculator\PriceCalculator;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\InfoClientRepository")
@@ -31,6 +33,11 @@ class InfoClient
      */
     private $pays;
 
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $email;
+    
    /**
      * @var \DateTime
      * @ORM\Column(type="date")
@@ -40,7 +47,12 @@ class InfoClient
     /**
      * @ORM\Column(type="string", length=50)
      */
-    private $accesReduit;
+    private $accesReduit=0;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $priceClient=0;
 
     public function getId(): ?int
     {
@@ -83,6 +95,17 @@ class InfoClient
         return $this;
     }
 
+    public function getMessageEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setMessageEmail(string $email): self
+    {
+        $this->email=$email;
+        return $this;
+    }
+
     /**
      * Get dateNaissance
      *
@@ -117,4 +140,25 @@ class InfoClient
 
         return $this;
     }
+
+    public function getPriceClient($typeJour): ?float
+    {
+        $priceCalculator = new PriceCalculator();
+        
+        //$anneeNaissance=$dateNaissance->format('Y');
+        //$moisNaissance=$dateNaissance->format('m');
+        //$jourNaissance=$dateNaissance->format('d');
+        $anneeNaissance=($this->dateNaissance)->format('Y');
+        $moisNaissance=($this->dateNaissance)->format('m');
+        $jourNaissance=($this->dateNaissance)->format('d');
+        $reduit=$this->accesReduit;
+        $prixClient=$priceCalculator->getTarifClient($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour);
+        return $prixClient;
+    }
+
+    /*public function setPriceClient(float $priceClient): self
+    {
+        $this->priceClient = $priceClient;
+        return $this;
+    }*/
 }

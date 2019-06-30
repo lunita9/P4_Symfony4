@@ -56,7 +56,7 @@ class Reservation
     /**
      * @ORM\Column(type="float")
      */
-    private $price=0;
+    private $priceTotal=0;
 
     /**
      * @ORM\Column(type="integer")
@@ -70,19 +70,28 @@ class Reservation
      */
     private $btnAjoutPanier=0;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     * 
+     */
+    private $code=0;
+
+    
+    //private $image;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getPrice(): ?float
+    public function getPriceTotal(): ?float
     {
-        return $this->price;
+        return $this->priceTotal;
     }
 
-    public function setPrice(float $price): self
+    public function setPriceTotal(float $priceTotal): self
     {
-        $this->price = $price;
+        $this->priceTotal = $priceTotal;
         return $this;
     }
 
@@ -108,6 +117,17 @@ class Reservation
 
         return $this;
     }
+
+    //public function setImage( string $image) : self
+    //{
+    //    $this->image = $image;
+    //    return $this;
+    //}
+ 
+    //public function getImage(): ?string
+    //{
+    //    return $this->image;
+    //}
 
      /**
      * Get dateBillet
@@ -200,6 +220,18 @@ class Reservation
     public function setBtnAjoutPanier(string $btnAjoutPanier): self
     {
         $this->btnAjoutPanier = $btnAjoutPanier;
+
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
 
         return $this;
     }
