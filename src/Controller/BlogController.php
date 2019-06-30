@@ -20,6 +20,7 @@ use App\Form\FormulaireType;
 use App\Form\InfoClientType;
 use App\Form\GroupeClientsType;
 use Symfony\Component\Validator\Constraints\DateTime;
+use App\Service\PriceCalculator\PriceCalculator;
 
 class BlogController extends AbstractController
 {
@@ -109,6 +110,7 @@ class BlogController extends AbstractController
                 $maintenant=strtotime(date('Y-m-d H:i:s'));
                 $interval = $today14hSecondes - $maintenant;
             }
+            $session->set('type_jour', $reservation->getTypeJour());
             if( $interval > 0) {// $interval >0 : à partir de demain ou aujourd'hui avant 14h
                 $session->set('nombre_total_ticket', $reservation->getNombreTotalTicket());
                 $session->set('date_billet', $reservation->getDateBillet());
@@ -210,35 +212,45 @@ class BlogController extends AbstractController
         return $price;
     }*/
 
-    public function getTarif($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour, Reservation $reservation, InfoClient $infoClient){
+    //public function getTarif($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour){
+        /*
+        
         $anneeNaissance=strtotime($reservation->getDateBillet()->format('Y'));
         $moisNaissance=strotime($reservation->getDateBillet()->format('m'));
         $jourNaissance=strotime($reservation->getDateBillet()->format('d'));
+        
+        $age = $anneeAjd - $anneeNaissance;
+        if ($moisAjd < $moisNaissance) $age--;
+        if ($moisAjd == $moisNaissance && $jourAjd < $jourNaissance) $age--;
+        
+        
         $anneeAjd=strotime(date('Y'));
         $moisAjd=strotime(date('m'));
         $jourAjd=strotime(date('d'));
 
-        $tarifs = file_get_contents('/demo/tarifs.json');
+        
+
+        $tarifs = file_get_contents('/demo/prixTarifs.json');
         $tarifs= json_decode($tarifs);
         
-        if ($reduit) return $tarifs['reduit'];
+        if ($reduit) return $tarifs['reduitJ'] || $tarifs['reduitDJ'];*/
         
-        $correctif = 0;
+        /*$correctif = 0;
         $age = $anneeAjd - $anneeNaissance;
         if ($moisAjd < $moisNaissance) $correctif=1;
         if ($moisAjd == $moisNaissance && $jourAjd < $jourNaissance) $correctif=1;
-        $age -= $correctif;
+        $age -= $correctif;*/
         
-        if ($age < 4 )   return $tarifs['nourrisson'];
+       /* if ($age < 4 )   return $tarifs['nourrisson'];
         if ($age < 12 && $typeJour=='Journée')  return $tarifs['enfantJ'];
         if ($age >= 60 && $typeJour=='Journée') return $tarifs['seniorJ'];
         if($age>=12 && $age<60 && $typeJour=='Journée') return $tarifs['normalJ'];
         if($age >=4 && $age< 12 && $typeJour=='Demi-journée' ) return $tarifs['enfantDJ'];
         if($age >= 60 && $typeJour=='Demi-journée') return $tarifs['seniorDJ'];
-        return $tarifs['normalDJ'];
+        return $tarifs['normalDJ'];*/
 
         
-        }
+    //}
 
        
     
@@ -270,6 +282,7 @@ class BlogController extends AbstractController
     public function Detail_Client(Request $request)
     {
         $session=$request->getSession();
+        $typeJour=$session->get('type_jour');
         $nombreBillet=$session->get('nombre_total_ticket');
         $dateBillet=$session->get('date_billet');
         //$price=$session->get('price');
@@ -277,14 +290,30 @@ class BlogController extends AbstractController
         $groupeClients = new GroupeClients();
         for($i=1;$i<=$nombreBillet;$i++){
             $infoClient=new InfoClient();
+            //$infoClient->setId("Titre du formulaire n$i");
             $groupeClients->getListeInfoClient()-> add($infoClient);
         }
 
         $form=$this->createForm(GroupeClientsType::class, $groupeClients);
+        //$form=$this->createForm(InfoClientType::class, $infoClient);
 
         $form->handleRequest($request);
         
         if($form->isSubmitted()&& $form->isValid()){
+            $prixTotal=0;
+            $priceCalculator = new PriceCalculator();
+            for($i=0;$i<$nombreBillet;$i++){
+                $infoClient= $groupeClients->getListeInfoClient()[$i];
+                $dateNaissance=$infoClient->getDateNaissance();
+                $anneeNaissance=$dateNaissance->format('Y');
+                $moisNaissance=$dateNaissance->format('m');
+                $jourNaissance=$dateNaissance->format('d');
+                $reduit=$infoClient->getAccesReduit();
+                $prixClient=$priceCalculator->getTarif($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour);
+                $prixTotal+=$prixClient;
+            
+            }
+            echo $prixTotal;
             //$entityManager=$this->getDoctrine()->getManager();
             //$entityManager->persist($ListInfoClient);
             //$entityManager->flush();
