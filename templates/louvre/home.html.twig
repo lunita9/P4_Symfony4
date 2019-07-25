@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+{% block title %}Musée du Louvre{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+    body {
+        width:100%;
+        height: 1000px;
+        border-radius: 5px;
+        background:url('img/la-joconde.jpg') no-repeat;
+        position: absolute;
+        
+        background: rgba(0,0,255,0.9) 
+        border: 3px solid red;
+        
+    }
+    .bienvenue{
+        background:rgba(128,128,128,0.5);
+        border-radius: 5px;
+        text-align:center;
+        margin-top:150px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="bienvenue">
+<h1>Bienvenue au Musée du Louvre !</h1>
+<p>Le musée est ouvert tous les jours sauf le mardi. Il est fermé les jours fériés suivants : 1er mai, 1er novembre et 25 décembre.
+</p>
+
+<p>Vous pouvez choisir un billet pour une journée complète, ou pour une demi-journée à partir de 14h00.
+</p>
+
+
+<table>
+    <tr>
+	    <th>Catégorie</th>
+	    <th>Prix Journée</th>
+	    <th>Prix Demi-journée</th>
+	</tr>
+    <tr>
+	    <th>Moins de 4 ans</th>
+	    <th>{{ tarifs['nourrisson']}} €</th>
+	    <th>{{ tarifs['nourrisson']}} €</th>
+    <tr>
+	    <th>4 à 12 ans</th>
+	    <th>{{ tarifs['enfantJ']}} €</th>
+	    <th>{{ tarifs['enfantDJ']}} €</th>
+	</tr>
+    <tr>
+	    <th>13 à 59 ans</th>
+	    <th>{{ tarifs['normalJ']}} €</th>
+	    <th>{{ tarifs['normalDJ']}} €</th>
+	</tr>
+    <tr>
+	    <th>60 ans ou plus</th>
+	    <th>{{ tarifs['seniorJ']}} €</th>
+	    <th>{{ tarifs['seniorDJ']}} €</th>
+	</tr>
+    <tr>
+	    <th>Tarif réduit</th>
+	    <th>{{ tarifs['reduitJ']}} €</th>
+	    <th>{{ tarifs['reduitDJ']}} €</th>
+	</tr>
+
+</table>
+<br/>
+
+</section>
+{% endblock %}

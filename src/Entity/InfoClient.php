@@ -145,9 +145,7 @@ class InfoClient
     {
         $priceCalculator = new PriceCalculator();
         
-        //$anneeNaissance=$dateNaissance->format('Y');
-        //$moisNaissance=$dateNaissance->format('m');
-        //$jourNaissance=$dateNaissance->format('d');
+        
         $anneeNaissance=($this->dateNaissance)->format('Y');
         $moisNaissance=($this->dateNaissance)->format('m');
         $jourNaissance=($this->dateNaissance)->format('d');
@@ -156,9 +154,5 @@ class InfoClient
         return $prixClient;
     }
 
-    /*public function setPriceClient(float $priceClient): self
-    {
-        $this->priceClient = $priceClient;
-        return $this;
-    }*/
+    
 }

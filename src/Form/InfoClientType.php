@@ -17,15 +17,7 @@ class InfoClientType extends AbstractType
     {
 
         $builder
-      /*      ->add('nom')
-            ->add('prenom')
-            ->add('pays')
-            ->add('dateNaissance')
-            ->add('accesReduit')
-        ;*/
-
-
-
+      
         ->add('nom', TextType::class, [
             'attr'=>[
             'placeholder'=>"Votre nom"
@@ -42,37 +34,65 @@ class InfoClientType extends AbstractType
             ]
            ])
         ->add('date_naissance', DateType::class, array(
-            /*'attr'=>[
-                'placeholder'=>"Votre date de naissance"
-            ]
-        ])*/
-            
-            
             'format' => 'dd/MM/yyyy',
             'years' => range(1920, date('Y'))
             
             
         ))
-        ->add('acces_reduit', ChoiceType::class, [
-            'choices' => [
-                'Oui' => true, 
-                'Non' => false, 
+        
+        /*->add('acces_reduit', ChoiceType::class, array(
+            'choices' => array(
+                'Positive choice' => true,
+                'Negative choice' => false,
+            ),
+            'choices_as_values' => true,
+            'choice_value' => function ($choiceKey) {
+                if (null === $choiceKey) {
+                    return null;
+                }
+        
+                // cast to string after testing for null,
+                // as both null and false cast to an empty string
+                $stringChoiceKey = (string) $choiceKey;
+        
+                // true casts to '1'
+                if ('1' === $stringChoiceKey) {
+                    return 'true';
+                }
+        
+                // false casts to an empty string
+                if ('' === $stringChoiceKey) {
+                    return 'false';
+                }
+        
                 
-            ],
+            },
             'expanded' => true,
             'multiple' => false,
-           ])
+        ));*/
+           ->add('acces_reduit', ChoiceType::class, array( 
+            'choices' => array(
+                'Oui'=> 'Oui' , 
+                'Non' => 'Non', 
+                
+            ),
+            'expanded' => true,
+            'multiple' => false,
+           //])
           /* ->getForm();
         return $this->render('blog/accueil.html.twig', [
             'forminfo_client'=>$form->createView()
             ]); */   
-            ;
+        ));  
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => InfoClient::class,
+            //'choices' => $reduit,
+            'choice_label' => function ($value) {
+            return $value;}
         ]);
     }
 }

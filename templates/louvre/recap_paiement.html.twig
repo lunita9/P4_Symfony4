@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello!{% endblock %}
+{% block title %}Musée du Louvre{% endblock %}
 {% block stylesheets %}
 <style type="text/css">
     #card-element {
@@ -108,10 +108,10 @@
 <!--<meta http-equiv="Content-Security-Policy" content="script-src https:js.stripe.com 'self' 'unsafe-inline'">-->
     <div class="container">
         <ul class="progressbar">
-            <li class="active">Ajouter au panier</li>
-            <li class="active">Détail billets</li>
-            <li>Paiement</li>
-            <li>Confirmation</li>
+            <li class="active">Choix des billets</li>
+            <li class="active">Identifications</li>
+            <li class="active">Récapitulatif & Paiement</li>
+            <li>Confirmation du paiement</li>
         </ul>
     </div><br/>
     <br/><br/>
@@ -148,10 +148,10 @@
         <p><label for="">Tarif Réduit : {{infoClient.acces_reduit}} </label></p>
 #}
 <section class="formPayer">
-<form action="/paiement" method="post" id="payment-form">
+<form action="/confirmation" method="post" id="payment-form">
             <div class="form-row">
                 <label for="card-element">
-                Credit or debit card
+                Payer par carte bancaire :
                 </label>
             <div id="card-element">
             <!-- A Stripe Element will be inserted here. -->
@@ -161,7 +161,7 @@
             <div id="card-errors" role="alert"></div>
             </div>
 
-            <button>Submit Payment</button>
+            <button>Payer maintenant!</button>
         </form>
         </section>
 {% endblock %}

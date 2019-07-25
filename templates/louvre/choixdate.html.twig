@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello {{ controller_name }}!{% endblock %}
+{% block title %}Musée du Louvre{% endblock %}
 {% block stylesheets %}
 <style type="text/css">
     
@@ -77,24 +77,24 @@
 {%form_theme formFormulaire 'bootstrap_4_layout.html.twig'%}
 
 {% block body %}
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.css"/>
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js"></script>
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-     <script type="text/java-script" src="js/moment/moment.min.js"></script>
-     <script type="text/java-script" src="js/moment/moment-with-locales.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script type="text/java-script" src="js/moment/moment.min.js"></script>
+    <script type="text/java-script" src="js/moment/moment-with-locales.min.js"></script>
     <script type="text/java-script" src="bootstrap-datepicker.fr.min.js"></script>
 
     
     <div class="container">
     
         <ul class="progressbar">
-            <li class="active">Choix de réservation</li>
-            <li>Authentification</li>
-            <li>Paiement</li>
-            <li>Confirmation</li>
+            <li class="active">Choix des billets</li>
+            <li>Identifications</li>
+            <li>Récapitulatif & Paiement</li>
+            <li>Confirmation du paiement</li>
         </ul>
     </div>
     
@@ -104,7 +104,7 @@
 <br/>
 
 <section class="text">
-<textarea>{{msg_trop_tard}}</textarea></br>
+
 {{form_start(formFormulaire)}}
      {{ "now"|date('d/m/Y', 'Europe/Paris') }}
 {{form_end(formFormulaire)}}

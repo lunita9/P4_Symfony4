@@ -11,11 +11,11 @@ class MailValidator
      * @var Request
      */
     private $mailer;
-    //private $request;
+    
     public function __CONSTRUCT(\Swift_Mailer $mailer)
     {
         $this->mailer = $mailer;
-        //$this->request = $request;
+        
     }
     public function notify($dateBillet, $groupeClients, $priceTotal, $title)
     {
@@ -23,7 +23,7 @@ class MailValidator
             ->setFrom('openclassrooms_IF@orange.fr')
             ->setTo($title)
             ->setReplyTo($title);
-        //$image = $message->embed(\Swift_Image::fromPath('img/logo.jpg'));
+        
         $message->setBody($this->request->request('blog/email.html.twig', [
             'dateBillet' => $dateBillet,
             'groupe_client' => $groupeClients,

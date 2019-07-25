@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello!{% endblock %}
+{% block title %}Musée du Louvre{% endblock %}
 {% block stylesheets %}
 <style type="text/css">
 body {
         width:100%;
         height: 500px;
         border-radius: 5px;
-        background:url('img/louvre.jpg') no-repeat;
+        background:url('img/louvre.jpg');
         position: absolute;
         
         background: rgba(0,0,255,0.9) 
@@ -76,7 +76,7 @@ body {
 
 {% block body %}
 
-<script type="text/javascript">
+<!--<script type="text/javascript">
     function calculTotal(){
         var tb1=document.getElementById('text1');
         var nombreTarifNormal=+(tb1.value);
@@ -102,14 +102,14 @@ body {
 
     
 
-</script>    
+</script>-->    
 
     <div class="container">
         <ul class="progressbar">
-            <li class="active">Ajouter au panier</li>
-            <li class="active">Détail billets</li>
-            <li>Paiement</li>
-            <li>Confirmation</li>
+            <li class="active">Choix des billets</li>
+            <li class="active">Identifications</li>
+            <li>Récapitulatif & Paiement</li>
+            <li>Confirmation du paiement</li>
         </ul>
     </div>
 
@@ -134,13 +134,14 @@ body {
         {{form_widget(infoClient.pays)}}
         <label for="">Date de naissance :</label>
         {{form_widget(infoClient.date_naissance)}}
-        <label for="">Tarif Réduit :</label>
+        <label for="">Tarif Réduit (accordé seulement aux étudiants, aux employés du musée, à un service du Ministère de la Culture ou bien aux militaires) :<br/>
+        Un justificatif vous sera demandé le jour de la visite</label>
         {{form_widget(infoClient.acces_reduit)}}
         {% set index = index + 1 %}
         </br></br>
     {% endfor %}
 
-    <button type="submit" class="btn btn-success" href="/confirmation">Valider la commande</button>
+    <button type="submit" class="btn btn-success" href="/recap_paiement">Continuer</button>
    {{form_end(forminfo_client)}}
    </section>
 {% endblock %}

@@ -1,13 +1,5 @@
 {% extends 'base.html.twig' %}
-<script>
-	$(function() {
-		$( "#datepicker" ).datepicker({
-			showOn: "button",
-			buttonImage: "images/calendar.gif",
-			buttonImageOnly: true
-		});
-	});
-	</script>
+
 {% block title %}Hello FormulaireController!{% endblock %}
 
 {% block body %}
@@ -26,3 +18,12 @@
     </ul>
 </div>
 {% endblock %}
+{% block javascripts %}<script>
+	$(function() {
+		$( "#datepicker" ).datepicker({
+			showOn: "button",
+			buttonImage: "images/calendar.gif",
+			buttonImageOnly: true
+		});
+	});
+	</script>{% endblock %}

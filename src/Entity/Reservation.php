@@ -77,7 +77,7 @@ class Reservation
     private $code=0;
 
     
-    //private $image;
+    
 
     public function getId(): ?int
     {
@@ -118,17 +118,7 @@ class Reservation
         return $this;
     }
 
-    //public function setImage( string $image) : self
-    //{
-    //    $this->image = $image;
-    //    return $this;
-    //}
- 
-    //public function getImage(): ?string
-    //{
-    //    return $this->image;
-    //}
-
+    
      /**
      * Get dateBillet
      *
