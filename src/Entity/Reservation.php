@@ -28,6 +28,8 @@ class Reservation
      */
     private $dateBillet;
 
+
+
     /**
      * @ORM\Column(type="string", length=50)
      */
@@ -117,6 +119,7 @@ class Reservation
 
         return $this;
     }
+
 
     
      /**
@@ -225,4 +228,6 @@ class Reservation
 
         return $this;
     }
+
+    
 }

@@ -54,6 +54,11 @@ class InfoClient
      */
     private $priceClient=0;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $idReservation;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -151,7 +156,28 @@ class InfoClient
         $jourNaissance=($this->dateNaissance)->format('d');
         $reduit=$this->accesReduit;
         $prixClient=$priceCalculator->getTarifClient($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour);
+		$this->priceClient=$prixClient;
         return $prixClient;
+    }
+
+	    public function setPriceClient(float $priceClient): self
+    {
+        $this->priceClient = $priceClient;
+
+        return $this;
+    }
+
+
+    public function getIdReservation(): ?int
+    {
+        return $this->idReservation;
+    }
+
+    public function setIdReservation(int $idReservation): self
+    {
+        $this->idReservation = $idReservation;
+
+        return $this;
     }
 
     
