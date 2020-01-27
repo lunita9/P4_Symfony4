@@ -18,28 +18,28 @@ class PriceCalculatorTest extends TestCase
     {
         $price = new PriceCalculator();
         $result = $price ->getTarifClient(2010, 10, 12, false, 'Demi-journée');
-        $this ->assertEquals(5, $result);
+        $this ->assertEquals(4, $result);
     }
 
     public function testPrice3()
     {
         $price = new PriceCalculator();
         $result = $price ->getTarifClient(1992, 10, 12, false, 'Demi-journée');
-        $this ->assertEquals(9, $result);
+        $this ->assertEquals(8, $result);
     }
 
     public function testPrice4()
     {
         $price = new PriceCalculator();
         $result = $price->getTarifClient(1992, 10, 12, true, 'Demi-journée');
-        $this->assertEquals(6, $result);
+        $this->assertEquals(5, $result);
     }
 
     public function testPrice5()
     {
         $price = new PriceCalculator();
         $result = $price->getTarifClient(1958, 10, 12, false, 'Demi-journée');
-        $this->assertEquals(7, $result);
+        $this->assertEquals(6, $result);
     }
 
 }

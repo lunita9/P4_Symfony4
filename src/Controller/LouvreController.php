@@ -65,7 +65,13 @@ class LouvreController extends AbstractController
                 $maintenant=strtotime(date('Y-m-d H:i:s'));
                 $interval = $today14hSecondes - $maintenant;
             }
-
+            if(!$this->checkopen($reservation->getDateBillet())) {
+			    $this->addFlash("notice","Le louvre est fermé ce jour-là. Choisissez une autre date.");
+                return $this->render('louvre/choixdate.html.twig', [
+                'controller_name' => 'LouvreController',
+                'formFormulaire'=>$form->createView(),
+            ]);
+            }
             //1000 tickets par jour
             $nbBillet = $reservation->getNombreTotalTicket();
             $dateBillet = $reservation->getDateBillet();
@@ -88,7 +94,7 @@ class LouvreController extends AbstractController
             } 
 
 
-
+			$session->set('reservation', $reservation);
             $session->set('type_jour', $reservation->getTypeJour());
             if( $interval > 0) {// $interval >0 : à partir de demain ou aujourd'hui avant 14h
                 $session->set('nombre_total_ticket', $reservation->getNombreTotalTicket());
@@ -123,12 +129,33 @@ class LouvreController extends AbstractController
             'formFormulaire'=>$form->createView(),
             
         ]);    
-
-        
-        
     }
 
-    
+    public function jourFerie($date){
+        $daysOff = ["01/01", "05/01", "05/08", "07/14", "08/15", "11/01", "11/11", "12/25"];
+        $moisJour = $date->format("m/d");
+        //$this->addFlash("notice", $moisJour);
+        //$this->addFlash("notice",array_search($moisJour, $daysOff));
+        if(array_search($moisJour, $daysOff)===false){
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public function checkopen($date){
+        $disallow=[0,2];
+        $jourDeLaSemaine=$date->format("w");
+        if(array_search($jourDeLaSemaine, $disallow)===false){
+            if($this->jourFerie($date)){       
+                return false;
+            } else {
+                return true;                
+            }
+        } else {
+            return false;
+        }
+    }
 
     public function getNombreTotalTicket(Reservation $reservation, InfoClient $infoClient)
     {
@@ -163,6 +190,8 @@ class LouvreController extends AbstractController
         $nombreBillet=$session->get('nombre_total_ticket');
         $dateBillet=$session->get('date_billet');
         $title=$session->get('title');
+		$reservation=$session->get('reservation');
+		$idReservation=$reservation->getId();
         
 
         $groupeClients = new GroupeClients();
@@ -179,6 +208,7 @@ class LouvreController extends AbstractController
         if($form->isSubmitted()&& $form->isValid()){
             $priceTotal=0;
             $priceCalculator = new PriceCalculator();
+            $entityManager=$this->getDoctrine()->getManager();
             for($i=0;$i<$nombreBillet;$i++){
                 $infoClient= $groupeClients->getListeInfoClient()[$i];
                 $dateNaissance=$infoClient->getDateNaissance();
@@ -189,6 +219,12 @@ class LouvreController extends AbstractController
                 $prixClient=$priceCalculator->getTarifClient($anneeNaissance, $moisNaissance, $jourNaissance, $reduit, $typeJour);
                 echo $prixClient;
                 $priceTotal+=$prixClient;
+
+				$infoClient->setMessageEmail("");
+			    $infoClient->setPriceClient($prixClient);
+				$infoClient->setIdReservation($idReservation);
+                $entityManager->persist($infoClient);
+                $entityManager->flush();
                 
             }
             echo $priceTotal;
@@ -197,6 +233,7 @@ class LouvreController extends AbstractController
             $session->set('groupe_client', $groupeClients);
             $session->set('price_total', $priceTotal);
             $session->set('title', $title);
+			$reservation->setPriceTotal($priceTotal);
             return $this->redirectToRoute('recap_paiement');
         }
         
@@ -256,15 +293,30 @@ class LouvreController extends AbstractController
         $typeJour=$session->get('type_jour');
         $groupeClients=$session->get('groupe_client');
         $code=$session->get('code');
+		$reservation=$session->get('reservation');
+
         
         \Stripe\Stripe::setApiKey("sk_test_v58YrQMVbowbCjD1DUPz7D0900tM8CdbBG");
+		try {
+			\Stripe\Charge::create(array(
+				"amount"=>$priceTotal * 100,
+				"currency"=>"eur",
+				"source"=>$_POST['stripeToken'],
+				"description"=>"Paiement billets Louvre"
+			));
+		
+		} catch (\Exception $e) {
+			    $this->addFlash("notice","Le paiement n'a pas abouti.");
+		       return $this->redirectToRoute('recap_paiement');
+		}
 
-        \Stripe\Charge::create(array(
-            "amount"=>2000,
-            "currency"=>"eur",
-            "source"=>$_POST['stripeToken'],
-            "description"=>"Paiement de test"
-        ));
+		$code=strtoupper(substr(md5(uniqid("",true)),0,10));
+		$reservation->setCode($code);
+
+        $entityManager=$this->getDoctrine()->getManager();
+        $entityManager->persist($reservation);
+        $entityManager->flush();
+
         $transport = (new \Swift_SmtpTransport('smtp.orange.fr', 465))
         ->setUsername('openclassrooms_IF@orange.fr')
         ->setPassword('testOPp4')
@@ -275,7 +327,6 @@ class LouvreController extends AbstractController
         ->setFrom('noreply@museedulouvre.fr')
         ->setTo($title);
         $image = $message->embed(\Swift_Image::fromPath('img/louvre_logo_01.jpg'));
-        $code=strtoupper(substr(md5(uniqid()),0,10));
         $message->setBody($this->renderView('louvre/email.html.twig',[
             'image'=>$image,
             'code'=>$code,
