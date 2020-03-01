@@ -39,4 +39,6 @@ class MailValidator
         
         $this->mailer->send($message);
     }
+    
+    
 }

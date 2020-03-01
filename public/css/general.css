@@ -64,18 +64,20 @@
     .progressbar li.active + li:after{
         background-color:green;
     }
-/* confirmation.html.twig sans body*/
+/* confirmation.html.twig*/
    .container2 {
-        background:rgba(128,128,128);
+       background:rgba(128,128,128);
        border-radius: 5px;
+       
     }
 
 /*email.html.twig*/
    .container3 {
         width:100%;
+        
     }
 
-/*home.html.twig sans body*/
+/*home.html.twig*/
     .bienvenue{
         background:rgba(128,128,128,0.5);
         border-radius: 5px;
@@ -83,13 +85,13 @@
         margin-top:150px;
     }
 
-/*identifications.html.twig sans body*/
+/*identifications.html.twig*/
     .formulaire{
         background:rgba(127,255,212,0.5);
         border-radius: 5px;
 
     }
-/* recap_paiement.html.twig sans body*/
+/* recap_paiement.html.twig*/
    #card-element {
         width: 100%;
     }

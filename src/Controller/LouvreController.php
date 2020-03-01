@@ -132,8 +132,7 @@ class LouvreController extends AbstractController
     public function jourFerie($date){
         $daysOff = ["01/01", "05/01", "05/08", "07/14", "08/15", "11/01", "11/11", "12/25"];
         $moisJour = $date->format("m/d");
-        //$this->addFlash("notice", $moisJour);
-        //$this->addFlash("notice",array_search($moisJour, $daysOff));
+        
         if(array_search($moisJour, $daysOff)===false){
             return false;
         } else {
@@ -322,9 +321,10 @@ class LouvreController extends AbstractController
         ];
         
         
-        global $kernel; //ça marche avec ces 3 lignes
+        global $kernel; 
         $container = $kernel->getContainer();
         $email = $container->get('App\Service\MailLouvre');
+        
         
         $email->send('noreply@museedulouvre.fr', $title, 'Soyez les bienvenus au Louvre!!', 'louvre/email.html.twig', $paramTwig,                           'img/louvre_logo_01.jpg');
 
