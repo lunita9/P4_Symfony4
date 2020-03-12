@@ -22,25 +22,7 @@ services:
         Twig\Environment:
             tags: ['twig']
     
-    #App\Service\MailLouvre:
-    #    autowire: true
-        
-    #App\Service\SendEmail\SendEmail:
-    #    public: false
-    #    autowire: true
-    #    bind:
-    #        $twig: '@twig'
     
-    #email_service:
-    #    class: App\Service\SendEmail\SendEmail
-    #    public: false
-    #    autowire: true
-    #    arguments: 
-    #        - '@twig'
-    
-    #App\Service\Payment\Payment:
-    #    autowire: false
-    #    public: false
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
