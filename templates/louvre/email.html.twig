@@ -1,8 +1,6 @@
 
 {% block title %}{% endblock %}
-{% block stylesheets %}
-    
-{% endblock %}
+{% block stylesheets %} {% endblock %}
 
 
 
@@ -15,7 +13,7 @@
     <p><label for="">Code de réservation :{{code}}</label></p><br/>
     {% set index = 1 %}
     {% for infoClient in groupe_client.getListeInfoClient %}
-        <div><label for""><strong>Billet n° </strong></label>{{index}}</div></br>
+        <div><label for=""><strong>Billet n° </strong></label>{{index}}</div></br>
         <p><label for="">Nom : {{infoClient.nom}} </label></p>
         <p><label for="">Prénom : {{infoClient.prenom}} </label></p>
         <p><label for="">Le pays de résidence : {{infoClient.pays}} </label></p>

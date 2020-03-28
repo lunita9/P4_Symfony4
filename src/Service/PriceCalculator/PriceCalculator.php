@@ -34,6 +34,6 @@ class PriceCalculator
         $tarifs= json_decode($tarifs,true);
 	    return $tarifs;
 	}
-    
+
 }
 ?>

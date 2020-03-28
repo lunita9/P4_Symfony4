@@ -2,10 +2,7 @@
 
 {% block title %}Musée du Louvre{% endblock %}
 {% block stylesheets %}
-
-    {{ parent() }}
     <link href="css/confirmation_image.css" rel="stylesheet" type="text/css">
-    
 {% endblock %}
 
 {% block body %}
@@ -16,21 +13,24 @@
             <li class="active">Récapitulatif & Paiement</li>
             <li class="active">Confirmation du paiement</li>
         </ul>
-    </div><br/>
-    <br/><br/>
+    </div>
+    <br/>
+    <br/>
+    <br/>
     <br/>
     
     <div>
-<label>
-    <h5>Merci pour votre confiance !<br/> Vous pouvez dès à présent récupérer à l'adresse : {{title}}</h5><br/>
-    <ul>
-        <li>la confirmation de votre paiement</li>
-        <li>le récapitulatif de votre commande</li>
-        <li>le code de réservation de votre commande</li>
-    </ul><br/>
-    <h5>Bonne visite !</h5><br/>
+        <label>
+            <h5>Merci pour votre confiance !<br/> Vous pouvez dès à présent récupérer à l'adresse : {{title}}</h5><br/>
+            <ul>
+                <li>la confirmation de votre paiement</li>
+                <li>le récapitulatif de votre commande</li>
+                <li>le code de réservation de votre commande</li>
+            </ul>
+            <br/>
+            <h5>Bonne visite !</h5><br/>
     
-</label>
-
+        </label>
+    </div>
         
 {% endblock %}

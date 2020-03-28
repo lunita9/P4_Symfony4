@@ -11,9 +11,6 @@ class AgeCalculator
 {
     public function AgeCalculator($anneeNaissance, $moisNaissance, $jourNaissance )
     {
-        //$anneeNaissance=strtotime($reservation->getDateBillet()->format('Y'));
-        //$moisNaissance=strotime($reservation->getDateBillet()->format('m'));
-        //$jourNaissance=strotime($reservation->getDateBillet()->format('d'));
         
         $anneeAjd=date('Y');
         $moisAjd=date('m');
@@ -29,3 +26,4 @@ class AgeCalculator
     
 }        
 ?>
+

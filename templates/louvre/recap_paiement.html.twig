@@ -2,14 +2,11 @@
 
 {% block title %}Musée du Louvre{% endblock %}
 {% block stylesheets %}
-
-    {{ parent() }}
     <link href="css/recap_image.css" rel="stylesheet" type="text/css">
-       
 {% endblock %}
 
 {% block body %}
-<!--<meta http-equiv="Content-Security-Policy" content="script-src https:js.stripe.com 'self' 'unsafe-inline'">-->
+
     <div class="container">
         <ul class="progressbar">
             <li class="active">Choix des billets</li>
@@ -20,114 +17,61 @@
     </div><br/>
     <br/><br/>
     <br/>
+
     <section class="recap">
-    <label for=""><strong>Récapitulatif</strong></label></br>
-    <textarea>Nombre de billets :{{nbBillet}}</textarea>
-    <textarea>Date de visite :{{dateBillet}}</textarea>
-    <textarea>Email du client {{title}}</textarea>
-    <textarea>Prix total: {{price_total}} €</textarea>
+        <label for=""><strong>Récapitulatif</strong></label></br>
+        <textarea>Nombre de billets :{{nbBillet}}</textarea>
+        <textarea>Date de visite :{{dateBillet}}</textarea>
+        <textarea>Email du client {{title}}</textarea>
+        <textarea>Prix total: {{price_total}} €</textarea>
     </section>
     </br><br/>
     
     <section class="formBillet">
-    {% set index = 1 %}
-    {% for infoClient in groupe_client.getListeInfoClient %}
+        {% set index = 1 %}
+        {% for infoClient in groupe_client.getListeInfoClient %}
      
-        <div><label for""><strong>Formulaire du billet n° </strong></label>{{index}}</div></br>
-        <p><label for="">Nom : {{infoClient.nom}} </label></p>
-        <p><label for="">Prénom : {{infoClient.prenom}} </label></p>
-        <p><label for="">Le pays de résidence : {{infoClient.pays}} </label></p>
-        <p><label for="">Date de naissance : {{infoClient.getDateNaissance.format('d/m/Y')}} </label></p>
-        <p><label for="">Tarif Réduit : {{infoClient.getAccesReduit}} </label></p>
-        <p><label for="">Prix du billet : {{infoClient.getPriceClient(type_jour)}} €</label></p>
+            <div><label for=""><strong>Formulaire du billet n° </strong></label>{{index}}</div></br>
+            <p><label for="">Nom : {{infoClient.nom}} </label></p>
+            <p><label for="">Prénom : {{infoClient.prenom}} </label></p>
+            <p><label for="">Le pays de résidence : {{infoClient.pays}} </label></p>
+            <p><label for="">Date de naissance : {{infoClient.getDateNaissance.format('d/m/Y')}} </label></p>
+            <p><label for="">Tarif Réduit : {{infoClient.getAccesReduit}} </label></p>
+            <p><label for="">Prix du billet : {{infoClient.getPriceClient(type_jour)}} €</label></p>
         {% set index = index + 1 %}
         </br></br>
-    {% endfor %}
-</section>
+        {% endfor %}
+    </section>
     
-{#        <p><label for="">Nom : {{infoClient.nom}} </label></p>
-        <p><label for="">Prénom : {{infoClient.prenom}} </label></p>
-        <p><label for="">Le pays de résidence : {{infoClient.pays}} </label></p>
-        <p><label for="">Date de naissance : {{infoClient.date_naissance}} </label></p>
-        <p><label for="">Tarif Réduit : {{infoClient.acces_reduit}} </label></p>
-#}
-<section class="formPayer">
-<form action="/confirmation" method="post" id="payment-form">
+    {#        
+            <p><label for="">Nom : {{infoClient.nom}} </label></p>
+            <p><label for="">Prénom : {{infoClient.prenom}} </label></p>
+            <p><label for="">Le pays de résidence : {{infoClient.pays}} </label></p>
+            <p><label for="">Date de naissance : {{infoClient.date_naissance}} </label></p>
+            <p><label for="">Tarif Réduit : {{infoClient.acces_reduit}} </label></p>
+    #}
+    <section class="formPayer">
+        <form action="/confirmation" method="post" id="payment-form">
             <div class="form-row">
-                <label for="card-element">
-                Payer par carte bancaire :
-                </label>
-            <div id="card-element">
-            <!-- A Stripe Element will be inserted here. -->
-            </div>
+                    <label for="card-element">
+                    Payer par carte bancaire :
+                    </label>
+                <div id="card-element">
+                <!-- A Stripe Element will be inserted here. -->
+                </div>
 
-            <!-- Used to display form errors. -->
-            <div id="card-errors" role="alert"></div>
+                <!-- Used to display form errors. -->
+                <div id="card-errors" role="alert"></div>
             </div>
 
             <button>Payer maintenant!</button>
         </form>
-        </section>
+    </section>
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        var stripe = Stripe('pk_test_5xYBcB9wQyMbJm3tTfHhus1O00QfxT4UpJ');
-        var elements = stripe.elements();
+  
+<script src="js/stripePayment.js"></script>
 
-        // Custom styling can be passed to options when creating an Element.
-        var style = {
-        base: {
-            // Add your base input styles here. For example:
-            fontSize: '16px',
-            color: "#32325d",
-        }
-        };
-
-        // Create an instance of the card Element.
-        var card = elements.create('card', {style: style});
-console.log("truc",card);
-        // Add an instance of the card Element into the `card-element` <div>.
-        card.mount('#card-element');
-
-        card.addEventListener('change', function(event) {
-            var displayError = document.getElementById('card-errors');
-            if (event.error) {
-                displayError.textContent = event.error.message;
-            } else {
-                displayError.textContent = '';
-            }
-        });
-
-        // Create a token or display an error when the form is submitted.
-        var form = document.getElementById('payment-form');
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            stripe.createToken(card).then(function(result) {
-                if (result.error) {
-                // Inform the customer that there was an error.
-                var errorElement = document.getElementById('card-errors');
-                errorElement.textContent = result.error.message;
-                } else {
-                // Send the token to your server.
-                stripeTokenHandler(result.token);
-                }
-            });
-        });
-
-        function stripeTokenHandler(token) {
-            // Insert the token ID into the form so it gets submitted to the server
-            var form = document.getElementById('payment-form');
-            var hiddenInput = document.createElement('input');
-            hiddenInput.setAttribute('type', 'hidden');
-            hiddenInput.setAttribute('name', 'stripeToken');
-            hiddenInput.setAttribute('value', token.id);
-            form.appendChild(hiddenInput);
-
-            // Submit the form
-            form.submit();
-        }
-    </script>
 {% endblock %}
 

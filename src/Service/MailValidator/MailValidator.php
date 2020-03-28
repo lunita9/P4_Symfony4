@@ -19,6 +19,12 @@ class MailValidator
     }
     public function notify($dateBillet, $groupeClients, $priceTotal, $title)
     {
+        $transport = (new \Swift_SmtpTransport('smtp.orange.fr', 465))
+        ->setUsername('openclassrooms_IF@orange.fr')
+        ->setPassword('testOPp4')
+        ->setEncryption('ssl');
+        $mailer = new \Swift_Mailer($transport);
+        
         $message = (new \Swift_Message('Votre billet - Musée du Louvre'))
             ->setFrom('openclassrooms_IF@orange.fr')
             ->setTo($title)

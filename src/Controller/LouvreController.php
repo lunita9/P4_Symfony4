@@ -21,10 +21,10 @@ use App\Form\InfoClientType;
 use App\Form\GroupeClientsType;
 use Symfony\Component\Validator\Constraints\DateTime;
 use App\Service\PriceCalculator\PriceCalculator;
-//use Symfony\Component\Mailer\MailerInterface;
-//use Symfony\Component\Mime\Email;
 use App\Service\MailValidator\MailValidator;
-
+use App\Service\MailLouvre;
+use App\Service\Payment\Payment;
+use Twig\Environment;
 
 class LouvreController extends AbstractController
 {
@@ -39,7 +39,7 @@ class LouvreController extends AbstractController
         $tarifs=$priceCalculator->getTarifs();
         return $this->render('louvre/home.html.twig', [
                 'tarifs' => $tarifs
-            ]);
+        ]);
     }
     
 
@@ -70,7 +70,7 @@ class LouvreController extends AbstractController
                 return $this->render('louvre/choixdate.html.twig', [
                 'controller_name' => 'LouvreController',
                 'formFormulaire'=>$form->createView(),
-            ]);
+                ]);
             }
             //1000 tickets par jour
             $nbBillet = $reservation->getNombreTotalTicket();
@@ -82,15 +82,14 @@ class LouvreController extends AbstractController
                 return $this->render('louvre/choixdate.html.twig', [
                 'controller_name' => 'LouvreController',
                 'formFormulaire'=>$form->createView(),
-               
-            ]);
+                ]);
+                
             } else if($nbBilletDate + $nbBillet > 1000) {
 			    $this->addFlash("notice","Il ne reste plus que ".(1000-$nbBilletDate)." billets disponibles pour cette date.");
                 return $this->render('louvre/choixdate.html.twig', [
                 'controller_name' => 'LouvreController',
                 'formFormulaire'=>$form->createView(),
-                
-            ]);
+                ]);
             } 
 
 
@@ -111,8 +110,7 @@ class LouvreController extends AbstractController
                     return $this->render('louvre/choixdate.html.twig', [
                     'controller_name' => 'LouvreController',
                     'formFormulaire'=>$form->createView(),
-                   
-                ]);
+                    ]);
                 }
                 
             }
@@ -275,7 +273,7 @@ class LouvreController extends AbstractController
             'groupe_client'=>$groupeClients,
             'controller_name' => 'LouvreController',
             'forminfo_client'=>$form->createView()
-            ]);
+        ]);
         
     }
 
@@ -286,29 +284,26 @@ class LouvreController extends AbstractController
      */
     public function Payer(Request $request)
     {
-        $session=$request->getSession();
-        $title=$session->get('title');
-        $dateBillet=$session->get('date_billet');
-        $priceTotal=$session->get('price_total');
-        $typeJour=$session->get('type_jour');
-        $groupeClients=$session->get('groupe_client');
-        $code=$session->get('code');
-		$reservation=$session->get('reservation');
-
+        $session       = $request->getSession();
+        $title         = $session->get('title');
+        $dateBillet    = $session->get('date_billet');
+        $priceTotal    = $session->get('price_total');
+        $typeJour      = $session->get('type_jour');
+        $groupeClients = $session->get('groupe_client');
+        $code          = $session->get('code');
+        $reservation   = $session->get('reservation');
+        $payment       = new Payment();
+        $payment->pay(
+            [
+                "priceTotal"  => $priceTotal,
+                "stripeToken" => $_POST['stripeToken']
+            ]
+        );
         
-        \Stripe\Stripe::setApiKey("sk_test_v58YrQMVbowbCjD1DUPz7D0900tM8CdbBG");
-		try {
-			\Stripe\Charge::create(array(
-				"amount"=>$priceTotal * 100,
-				"currency"=>"eur",
-				"source"=>$_POST['stripeToken'],
-				"description"=>"Paiement billets Louvre"
-			));
-		
-		} catch (\Exception $e) {
-			    $this->addFlash("notice","Le paiement n'a pas abouti.");
-		       return $this->redirectToRoute('recap_paiement');
-		}
+        if (!$payment->succeed) {
+            $this->addFlash("notice","Le paiement n'a pas abouti.");
+            return $this->redirectToRoute('recap_paiement');
+        }
 
 		$code=strtoupper(substr(md5(uniqid("",true)),0,10));
 		$reservation->setCode($code);
@@ -316,36 +311,32 @@ class LouvreController extends AbstractController
         $entityManager=$this->getDoctrine()->getManager();
         $entityManager->persist($reservation);
         $entityManager->flush();
-
-        $transport = (new \Swift_SmtpTransport('smtp.orange.fr', 465))
-        ->setUsername('openclassrooms_IF@orange.fr')
-        ->setPassword('testOPp4')
-        ->setEncryption('ssl');
-        $mailer = new \Swift_Mailer($transport);
-
-        $message= (new \Swift_Message('Soyez les bienvenus au Louvre!!'))
-        ->setFrom('noreply@museedulouvre.fr')
-        ->setTo($title);
-        $image = $message->embed(\Swift_Image::fromPath('img/louvre_logo_01.jpg'));
-        $message->setBody($this->renderView('louvre/email.html.twig',[
-            'image'=>$image,
-            'code'=>$code,
-            'dateBillet' => $dateBillet->format('d-m-Y'),
-            'groupe_client' => $groupeClients,
-            'price_total' => $priceTotal,
-            'type_jour'=>$typeJour,
-            'title' => $title
-         ]), 'text/html');
         
+        $paramTwig=[ 
+         'code'=>$code,
+         'dateBillet' => $dateBillet->format('d-m-Y'),
+         'groupe_client' => $groupeClients,
+         'price_total' => $priceTotal,
+         'type_jour'=>$typeJour,
+         'title' => $title
+        ];
+        
+        
+        global $kernel; //ça marche avec ces 3 lignes
+        $container = $kernel->getContainer();
+        $email = $container->get('App\Service\MailLouvre');
+        
+        $email->send('noreply@museedulouvre.fr', $title, 'Soyez les bienvenus au Louvre!!', 'louvre/email.html.twig', $paramTwig,                           'img/louvre_logo_01.jpg');
 
-        $result = $mailer->send($message);
-
+        
         return $this->render('louvre/confirmation.html.twig', [
             'title'=>$title
         ]);
+
+        
     }
 
-   
+    
 }
 
 
